@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using BepInEx.Configuration;
-using ModTemplate.Patches;
+using AdjustUraFlipSpeed.Patches;
 using System.IO;
 
 #if IL2CPP
@@ -13,7 +13,7 @@ using BepInEx.Unity.IL2CPP.Utils;
 using BepInEx.Unity.IL2CPP;
 #endif
 
-namespace ModTemplate
+namespace AdjustUraFlipSpeed
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, ModName, MyPluginInfo.PLUGIN_VERSION)]
 #if MONO
@@ -22,13 +22,16 @@ namespace ModTemplate
     public class Plugin : BasePlugin
 #endif
     {
-        public const string ModName = "ModTemplate";
+        public const string ModName = "AdjustUraFlipSpeed";
 
         public static Plugin Instance;
         private Harmony _harmony;
         public new static ManualLogSource Log;
 
         public ConfigEntry<bool> ConfigEnabled;
+
+        public ConfigEntry<float> ConfigAdjustMultiplier;
+
 
 #if MONO
         private void Awake()
@@ -59,6 +62,11 @@ namespace ModTemplate
                    true,
                    "Enables the mod.");
             }
+
+            ConfigAdjustMultiplier = config.Bind("General",
+                "AdjustMultiplier",
+                1f,
+                "Multiplies the animation speed. Higher number is faster.");
         }
 
         private void SetupHarmony()
@@ -75,8 +83,7 @@ namespace ModTemplate
             {
                 bool result = true;
                 // If any PatchFile fails, result will become false
-                //result &= Instance.PatchFile(typeof(ExampleSingleHitBigNotesPatch));
-                //result &= Instance.PatchFile(typeof(ExampleSortByUraPatch));
+                result &= Instance.PatchFile(typeof(AdjustUraFlipSpeedPatch));
                 if (result)
                 {
                     ModLogger.Log($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
