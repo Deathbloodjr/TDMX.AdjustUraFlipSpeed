@@ -29,3 +29,9 @@ Add BepInEx as a nuget package source (https://nuget.bepinex.dev/v3/index.json)
  
 
 
+# Links
+[DB.TDMX mods](https://docs.google.com/spreadsheets/d/1fuAAfK-0Vw74TwxXF5WVy1fh1ADsVzUkDd7dOHc7EdQ)\
+[DB.RF Mods](https://docs.google.com/spreadsheets/d/1xY_WANKpkE-bKQwPG4UApcrJUG5trrNrbycJQSOia0c)\
+[DB's Taiko Discord Server](https://discord.gg/6Bjf2xP)
+
+

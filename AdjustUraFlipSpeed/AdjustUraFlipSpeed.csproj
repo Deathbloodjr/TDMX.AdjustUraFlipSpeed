@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AuthorName>DB</AuthorName>
     <ModName>AdjustUraFlipSpeed</ModName>
-    <ModVersion>0.0.1</ModVersion>
+    <ModVersion>1.0.0</ModVersion>
     <Description>A TDMX mod to change the speed that it flips between Oni and Ura difficulties in Course Select.</Description>
   </PropertyGroup>
 
