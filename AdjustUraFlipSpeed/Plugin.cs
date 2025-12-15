@@ -31,6 +31,8 @@ namespace AdjustUraFlipSpeed
         public ConfigEntry<bool> ConfigEnabled;
 
         public ConfigEntry<float> ConfigAdjustMultiplier;
+        public ConfigEntry<float> ConfigSongSelectScrollNormalSpeed;
+        public ConfigEntry<float> ConfigSongSelectScrollFastSpeed;
 
 
 #if MONO
@@ -63,10 +65,20 @@ namespace AdjustUraFlipSpeed
                    "Enables the mod.");
             }
 
-            ConfigAdjustMultiplier = config.Bind("General",
+            ConfigAdjustMultiplier = config.Bind("UraFlipSpeed",
                 "AdjustMultiplier",
                 1f,
                 "Multiplies the animation speed. Higher number is faster.");
+
+            ConfigSongSelectScrollNormalSpeed = config.Bind("SongSelectScrollSpeed",
+                "SongSelectScrollNormalSpeed",
+                1f,
+                "Sets the animation speed for the normal scroll speed. Higher number is faster.");
+
+            ConfigSongSelectScrollFastSpeed = config.Bind("SongSelectScrollSpeed",
+                "SongSelectScrollFastSpeed",
+                2f,
+                "Sets the animation speed for the faster scroll speed. Higher number is faster.");
         }
 
         private void SetupHarmony()
@@ -84,6 +96,7 @@ namespace AdjustUraFlipSpeed
                 bool result = true;
                 // If any PatchFile fails, result will become false
                 result &= Instance.PatchFile(typeof(AdjustUraFlipSpeedPatch));
+                result &= Instance.PatchFile(typeof(SongSelectScrollSpeedPatch));
                 if (result)
                 {
                     ModLogger.Log($"Plugin {MyPluginInfo.PLUGIN_NAME} is loaded!");
