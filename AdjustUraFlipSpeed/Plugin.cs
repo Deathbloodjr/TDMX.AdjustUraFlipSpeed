@@ -6,7 +6,9 @@ using HarmonyLib;
 using SaveProfileManager.Patches;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -145,7 +147,31 @@ namespace AdjustUraFlipSpeed
 
         public static void UnloadPlugin()
         {
+            LogPatchedMethods(LogType.Debug);
             Instance._harmony.UnpatchSelf();
+            var items = PatchProcessor.GetAllPatchedMethods().ToList();
+            foreach (var method in items)
+            {
+                HarmonyLib.Patches patchInfo = PatchProcessor.GetPatchInfo(method);
+                foreach (var post in patchInfo.Postfixes)
+                {
+                    if (post.owner == Instance._harmony.Id)
+                    {
+                        //ModLogger.Log("Post patch found: " + method.Name, LogType.Debug);
+                        // The patch SongSelectScrollSpeedPatch.Animator_speed_setter_Postfix for Animator.set_speed doesn't have a MethodBody
+                        // So it gets skipped by UnpatchSelf
+                        // I need to unpatch it myself as so
+                        if (method.Name.Contains("speed"))
+                        {
+                            //ModLogger.Log("method.HasMethodBody(): " + method.HasMethodBody(), LogType.Debug);
+                            PatchProcessor patchProcessor = new PatchProcessor(null, method);
+                            patchProcessor.Unpatch(post.PatchMethod);
+                            ModLogger.Log("Unpatch: " + method.Name, LogType.Debug);
+                        }
+                    }
+                }
+            }
+            LogPatchedMethods(LogType.Debug);
             ModLogger.Log($"Plugin {MyPluginInfo.PLUGIN_NAME} has been unpatched.");
         }
 
@@ -171,8 +197,8 @@ namespace AdjustUraFlipSpeed
             // If there's nothing to reload, don't put anything here, and keep it commented in AddToSaveManager
             //plugin.AssignReloadSaveFunction(ReloadPlugin);
 
-            // Uncomment this if there are more config options than just ConfigEnabled
-            //plugin.AssignConfigSetupFunction(SetupConfig);
+            // Comment this if the only config option is ConfigEnabled
+            plugin.AssignConfigSetupFunction(SetupConfig);
             plugin.AddToManager(ConfigEnabled.Value);
         }
 
@@ -181,12 +207,53 @@ namespace AdjustUraFlipSpeed
             try
             {
                 Assembly loadedAssembly = Assembly.Load("com.DB.TDMX.SaveProfileManager");
-                return loadedAssembly != null;
+                var isLoaded = loadedAssembly != null;
+                return isLoaded;
             }
             catch
             {
                 return false;
             }
+        }
+
+        private static void LogPatchedMethods(LogType logType = LogType.Debug)
+        {
+            List<string> output = new List<string>()
+            {
+                "Current patched methods: ",
+            };
+            foreach (MethodBase item in PatchProcessor.GetAllPatchedMethods().ToList())
+            {
+                //bool num = item.HasMethodBody();
+                HarmonyLib.Patches patchInfo2 = PatchProcessor.GetPatchInfo(item);
+                PatchProcessor patchProcessor = new PatchProcessor(null, item);
+                patchInfo2.Postfixes.DoIf((Patch patchInfo) => patchInfo.owner == Instance._harmony.Id, delegate (Patch patchInfo)
+                {
+                    string value = item.DeclaringType.Name + "." + item.Name + " Postfix";
+                    output.Add(value);
+                });
+                patchInfo2.Prefixes.DoIf((Patch patchInfo) => patchInfo.owner == Instance._harmony.Id, delegate (Patch patchInfo)
+                {
+                    string value = item.DeclaringType.Name + "." + item.Name + " Prefix";
+                    output.Add(value);
+                });
+                patchInfo2.ILManipulators.DoIf((Patch patchInfo) => patchInfo.owner == Instance._harmony.Id, delegate (Patch patchInfo)
+                {
+                    string value = item.DeclaringType.Name + "." + item.Name + " ILManipulator";
+                    output.Add(value);
+                });
+                patchInfo2.Transpilers.DoIf((Patch patchInfo) => patchInfo.owner == Instance._harmony.Id, delegate (Patch patchInfo)
+                {
+                    string value = item.DeclaringType.Name + "." + item.Name + " Transpiler";
+                    output.Add(value);
+                });
+                patchInfo2.Finalizers.DoIf((Patch patchInfo) => patchInfo.owner == Instance._harmony.Id, delegate (Patch patchInfo)
+                {
+                    string value = item.DeclaringType.Name + "." + item.Name + " Finalizer";
+                    output.Add(value);
+                });
+            }
+            ModLogger.Log(output, logType);
         }
 
         public static MonoBehaviour GetMonoBehaviour() => TaikoSingletonMonoBehaviour<CommonObjects>.Instance;

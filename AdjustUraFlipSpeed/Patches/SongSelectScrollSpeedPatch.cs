@@ -28,7 +28,6 @@ namespace AdjustUraFlipSpeed.Patches
         [HarmonyPrefix]
         private static void SongSelectManager_PlayKanbanMoveAnim_Prefix(SongSelectManager __instance)
         {
-            //ModLogger.Log("SongSelectManager_PlayKanbanMoveAnim_Prefix");
             changeSpeed = true;
         }
 
@@ -39,7 +38,6 @@ namespace AdjustUraFlipSpeed.Patches
         [HarmonyPostfix]
         private static void SongSelectManager_PlayKanbanMoveAnim_Postfix(SongSelectManager __instance)
         {
-            //ModLogger.Log("SongSelectManager_PlayKanbanMoveAnim_Postfix");
             changeSpeed = false;
         }
 
@@ -50,9 +48,9 @@ namespace AdjustUraFlipSpeed.Patches
         [HarmonyPostfix]
         private static void Animator_speed_setter_Postfix(Animator __instance)
         {
-            //ModLogger.Log("Animator_speed_setter_Postfix");
             if (changeSpeed && !skipNext)
             {
+                ModLogger.Log("In", LogType.Debug);
                 skipNext = true;
                 var newSpeed = 1f;
                 if (__instance.speed == 1)
