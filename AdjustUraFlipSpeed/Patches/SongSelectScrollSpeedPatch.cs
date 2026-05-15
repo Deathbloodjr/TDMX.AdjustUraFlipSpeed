@@ -50,7 +50,6 @@ namespace AdjustUraFlipSpeed.Patches
         {
             if (changeSpeed && !skipNext)
             {
-                ModLogger.Log("In", LogType.Debug);
                 skipNext = true;
                 var newSpeed = 1f;
                 if (__instance.speed == 1)
